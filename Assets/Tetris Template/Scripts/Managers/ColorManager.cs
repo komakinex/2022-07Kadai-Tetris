@@ -12,7 +12,7 @@ public class ColorManager : MonoBehaviour {
 	public ColorTheme activeTheme;
 
     public Color[] themePack_Pastel;
-    public Color[] themePack_Gram;	
+    public Color[] themePack_Gram;
 
 	public Color TurnRandomColorFromTheme()
 	{

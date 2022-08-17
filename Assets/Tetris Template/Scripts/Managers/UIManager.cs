@@ -32,12 +32,12 @@ public class UIManager : MonoBehaviour {
 	{
 		if (menutype.Equals (Menus.MAIN))
 		{
-            StartCoroutine(ActivateMainMenu());          
+            StartCoroutine(ActivateMainMenu());
 		}
 		else if(menutype.Equals(Menus.INGAME))
 		{
             StartCoroutine(ActivateInGameUI());
-		}	
+		}
 	}
 
     IEnumerator ActivateMainMenu()

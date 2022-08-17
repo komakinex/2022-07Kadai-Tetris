@@ -24,11 +24,6 @@ public class PlayerInputManager : MonoBehaviour
     public bool isActive;
     public InputMethod inputType;
 
-    void Awake()
-    {
-
-    }
-
     void Update()
     {
         if (isActive)
