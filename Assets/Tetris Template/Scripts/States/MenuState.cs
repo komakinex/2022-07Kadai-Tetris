@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using hosoi;
 
 public class MenuState : _StatesBase {
 	
@@ -10,7 +11,7 @@ public class MenuState : _StatesBase {
 		// Debug.Log ("<color=green>Menu State</color> OnActive");	
 
 		Managers.UI.ActivateUI (Menus.MAIN);
-        Managers.Cam.ZoomOut();
+        Presenter.Cam.ZoomOut();
         Managers.UI.mainMenu.MainMenuStartAnimation();
         Managers.UI.MainMenuArrange();
     }

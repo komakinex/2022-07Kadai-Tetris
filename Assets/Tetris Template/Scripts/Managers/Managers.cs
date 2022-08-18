@@ -12,16 +12,16 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(GameManager))]
-[RequireComponent(typeof(GridManager))]
-[RequireComponent(typeof(UIManager))]
-[RequireComponent(typeof(AudioManager))]
-[RequireComponent(typeof(ScoreManager))]
-[RequireComponent(typeof(PlayerInputManager))]
-[RequireComponent(typeof(AnalyticsManager))]
-[RequireComponent(typeof(AdvertisementManager))]
-[RequireComponent(typeof(SpawnManager))]
-[RequireComponent(typeof(ColorManager))]
+// [RequireComponent(typeof(GameManager))]
+// [RequireComponent(typeof(GridManager))]
+// [RequireComponent(typeof(UIManager))]
+// [RequireComponent(typeof(AudioManager))]
+// [RequireComponent(typeof(ScoreManager))]
+// [RequireComponent(typeof(PlayerInputManager))]
+// [RequireComponent(typeof(AnalyticsManager))]
+// [RequireComponent(typeof(AdvertisementManager))]
+// [RequireComponent(typeof(SpawnManager))]
+// [RequireComponent(typeof(ColorManager))]
 public class Managers : MonoBehaviour
 {
 	private static GameManager _gameManager;
