@@ -57,9 +57,7 @@ public class PlayerInputManager : MonoBehaviour
 			{
 				OnKeyInput.OnNext("down");
 			});
-
 	}
-
 
 	public void EnableKeyInput(bool isActive)
 	{

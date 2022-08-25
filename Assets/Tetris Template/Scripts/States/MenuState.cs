@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
-using hosoi;
 
 public class MenuState : _StatesBase {
 	
 	#region implemented abstract members of GameState
 
 	public override void OnActivate ()
-	{		
+	{
 		// Debug.Log ("<color=green>Menu State</color> OnActive");	
 
 		Managers.UI.ActivateUI (Menus.MAIN);
-        Presenter.Cam.ZoomOut();
-        Managers.UI.mainMenu.MainMenuStartAnimation();
-        Managers.UI.MainMenuArrange();
-    }
+		Managers.Cam.ZoomOut();
+		Managers.UI.mainMenu.MainMenuStartAnimation();
+		Managers.UI.MainMenuArrange();
+	}
 
 	public override void OnDeactivate ()
 	{
