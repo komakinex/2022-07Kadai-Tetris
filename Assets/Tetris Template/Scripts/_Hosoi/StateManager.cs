@@ -16,11 +16,8 @@ public class StateManager : MonoBehaviour
 	Subject<string> OnStateChange = new Subject<string>();
 	public IObservable<string> OnStateChangeObservable { get { return OnStateChange; } }
 
-
-	public State current;
-	public State next;
-	public State prev;
-	public bool isFirst = false;
+	[HideInInspector] public State current, next, prev;
+	[HideInInspector] public bool isFirst = false;
 
 	public StateManager(State state)
 	{

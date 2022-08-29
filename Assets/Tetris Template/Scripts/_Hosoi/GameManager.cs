@@ -7,50 +7,58 @@ namespace hosoi
 public class GameManager : MonoBehaviour
 {
 	private bool _isGameActive;
-	public TetrisShape currentShape;
-	public Transform blockHolder;
-	public PlayerStats stats;
 
-	private _StatesBase currentState;
+	private float _timeSpent = 0;
+	private int _numberOfGames = 0;
+
+	private _StatesBase _currentState;
 	public _StatesBase State
 	{
-		get { return currentState; }
+		get { return _currentState; }
 	}
 
 	void Awake()
 	{
 		EnablePlay(false);
 	}
+
+	// テトリススタート！！
 	void Start()
 	{
 		SetState(typeof(MenuState));
 	}
 	void Update()
 	{
-		if (currentState != null)
+		if (_currentState != null)
 		{
-			currentState.OnUpdate();
+			_currentState.OnUpdate();
 		}
 	}
 
 	//Changes the current game state
 	public void SetState(System.Type newStateType)
 	{
-		if (currentState != null)
+		if (_currentState != null)
 		{
-			currentState.OnDeactivate();
+			_currentState.OnDeactivate();
 		}
 
-		currentState = GetComponentInChildren(newStateType) as _StatesBase;
-		if (currentState != null)
+		_currentState = GetComponentInChildren(newStateType) as _StatesBase;
+		if (_currentState != null)
 		{
-			currentState.OnActivate();
+			_currentState.OnActivate();
+			Debug.Log("setstate");
 		}
 	}
 
 	public void EnablePlay(bool isActive)
 	{
 		_isGameActive = isActive;
+	}
+
+	public void GameCount()
+	{
+		_numberOfGames++;
 	}
 }
 }

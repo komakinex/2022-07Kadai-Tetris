@@ -8,11 +8,12 @@ namespace hosoi
 public class Presenter : MonoBehaviour
 {
 	// View
+	[SerializeField] private BlockManager _blockManager;
 	[SerializeField] private ButtonManager _buttonManager;
 	[SerializeField] private CameraManager _cameraManager;
-	// [SerializeField] private ColorManager _colorManager;
+	[SerializeField] private ColorManager _colorManager;
 	[SerializeField] private GridManager _gridManager;
-	// [SerializeField] private SpawnManager _spawnManager;
+	[SerializeField] private SpawnManager _spawnManager;
 	[SerializeField] private UIManager _uiManager;
 	[SerializeField] private ViewManager _viewManager;
 
@@ -27,6 +28,7 @@ public class Presenter : MonoBehaviour
 	// // other
 	[SerializeField] private AudioManager _audioManager;
 
+
 	void Awake ()
 	{
 		// シーンを切り替えても破棄されないようにしている
@@ -37,46 +39,45 @@ public class Presenter : MonoBehaviour
 	{
 		// いろんなイベントが飛んできた時の対応を書いておく
 		// ステート変更
-		_stateManager.OnStateChangeObservable.Subscribe(state =>
-		{
-			Debug.Log(state);
-			switch (state)
-			{
-				case "menu":
-					// もし1つ前がplayだったら
-					// if _gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
+		// _stateManager.OnStateChangeObservable.Subscribe(state =>
+		// {
+		// 	Debug.Log(state);
+		// 	switch (state)
+		// 	{
+		// 		case "menu":
+		// 			// もし1つ前がplayだったら
+		// 			// if _gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
 
-					_uiManager.ActivateUI (Menus.MAIN);
-					_cameraManager.ZoomOut();
-					_uiManager.mainMenu.MainMenuStartAnimation();
-					_uiManager.MainMenuArrange();
-					break;
-				case "play":
-					_uiManager.panel.SetActive(false);
-					_uiManager.ActivateUI(Menus.INGAME);
+		// 			_uiManager.ActivateUI (Menus.MAIN);
+		// 			_cameraManager.ZoomOut();
+		// 			_uiManager.mainMenu.MainMenuStartAnimation();
+		// 			_uiManager.MainMenuArrange();
+		// 			break;
+		// 		case "play":
+		// 			_uiManager.panel.SetActive(false);
+		// 			_uiManager.ActivateUI(Menus.INGAME);
 
-					_gamePlayDuration = Time.time;
-					_cameraManager.ZoomIn();
+		// 			_gamePlayDuration = Time.time;
+		// 			_cameraManager.ZoomIn();
 
-					// 随時更新
-					// if(Managers.Game.currentShape!=null)
-					// 	_gameManager.currentShape.movementController.ShapeUpdate();
-					break;
-				case "gameover":
-					// もし1つ前がplayだったら
-					_gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
+		// 			// 随時更新
+		// 			// if(_gameManager.currentShape!=null)
+		// 			// 	_gameManager.currentShape.movementController.ShapeUpdate();
+		// 			break;
+		// 		case "gameover":
+		// 			// もし1つ前がplayだったら
+		// 			// _gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
 
-					_gameManager.EnablePlay(false);
-					_gameManager.stats.highScore = _scoreManager.currentScore;
-					_gameManager.stats.numberOfGames++;
-					_uiManager.popUps.ActivateGameOverPopUp();
-					_audioManager.PlayLoseSound();
-					break;
-				default:
-					break;
-			}
-		}).AddTo(this);
-
+		// 			_gameManager.EnablePlay(false);
+		// 			_scoreManager.CurrentIsHighScore();
+		// 			_gameManager.GameCount();
+		// 			_uiManager.popUps.ActivateGameOverPopUp();
+		// 			_audioManager.PlayLoseSound();
+		// 			break;
+		// 		default:
+		// 			break;
+		// 	}
+		// }).AddTo(this);
 
 		// キー入力
 		_inputManager.OnKeyInputObservable.Subscribe(key =>
@@ -85,22 +86,22 @@ public class Presenter : MonoBehaviour
 			switch (key)
 			{
 				case "up":
-					_gameManager.currentShape.movementController.RotateClockWise(false);
+					_blockManager.currentShape.movementController.RotateClockWise(false);
 					break;
 				case "d":
-					_gameManager.currentShape.movementController.RotateClockWise(true);
+					_blockManager.currentShape.movementController.RotateClockWise(true);
 					break;
 				case "left":
-					_gameManager.currentShape.movementController.MoveHorizontal(Vector2.left);
+					_blockManager.currentShape.movementController.MoveHorizontal(Vector2.left);
 					break;
 				case "right":
-					_gameManager.currentShape.movementController.MoveHorizontal(Vector2.right);
+					_blockManager.currentShape.movementController.MoveHorizontal(Vector2.right);
 					break;
 				case "down":
-					if (_gameManager.currentShape != null)
+					if (_blockManager.currentShape != null)
 					{
 						_inputManager.EnableKeyInput(false);
-						_gameManager.currentShape.movementController.InstantFall();
+						_blockManager.currentShape.movementController.InstantFall();
 					}
 					break;
 				default:
@@ -108,7 +109,7 @@ public class Presenter : MonoBehaviour
 			}
 		}).AddTo(this);
 
-		// ボタン系
+		// UI系
 		// 押されたボタン：Viewからの通知
 		_buttonManager.OnButtonClicked.Subscribe(btn => 
 		{
@@ -139,6 +140,13 @@ public class Presenter : MonoBehaviour
 				default:
 					break;
 			}
+		}).AddTo(this);
+
+		// スコアの変更
+		_scoreManager.OnHighScoreObservable.Subscribe(highscore => 
+		{
+			Debug.Log(highscore);
+			_uiManager.inGameUI.UpdateScoreUI();
 		}).AddTo(this);
 	}
 }
