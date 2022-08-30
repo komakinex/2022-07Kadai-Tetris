@@ -36,7 +36,7 @@ public class GridManager : MonoBehaviour
 				DeleteRow(y);
 				DecreaseRowsAbove(y + 1);
 				--y;
-				Managers.Audio.PlayLineClearSound();
+				// Managers.Audio.PlayLineClearSound();
 				yield return new WaitForSeconds(0.8f);
 			}
 		}

@@ -11,7 +11,6 @@ public class Presenter : MonoBehaviour
 	[SerializeField] private BlockManager _blockManager;
 	[SerializeField] private ButtonManager _buttonManager;
 	[SerializeField] private CameraManager _cameraManager;
-	[SerializeField] private ColorManager _colorManager;
 	[SerializeField] private GridManager _gridManager;
 	// [SerializeField] private UIManager _uiManager;
 	[SerializeField] private ViewManager _viewManager;
@@ -86,22 +85,22 @@ public class Presenter : MonoBehaviour
 			switch (key)
 			{
 				case "up":
-					_blockManager.currentShape.movementController.RotateClockWise(false);
+					_blockManager.movementController.RotateClockWise(false);
 					break;
 				case "d":
-					_blockManager.currentShape.movementController.RotateClockWise(true);
+					_blockManager.movementController.RotateClockWise(true);
 					break;
 				case "left":
-					_blockManager.currentShape.movementController.MoveHorizontal(Vector2.left);
+					_blockManager.movementController.MoveHorizontal(Vector2.left);
 					break;
 				case "right":
-					_blockManager.currentShape.movementController.MoveHorizontal(Vector2.right);
+					_blockManager.movementController.MoveHorizontal(Vector2.right);
 					break;
 				case "down":
 					if (_blockManager.currentShape != null)
 					{
 						_inputManager.EnableKeyInput(false);
-						_blockManager.currentShape.movementController.InstantFall();
+						_blockManager.movementController.InstantFall();
 					}
 					break;
 				default:

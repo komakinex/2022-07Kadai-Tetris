@@ -30,6 +30,7 @@ public class TetrisShape : MonoBehaviour
 
     void Start()
     {
+		// 後で組み込む
         // Default position not valid? Then it's game over
         if (!Managers.Grid.IsValidGridPosition(this.transform))
         {
