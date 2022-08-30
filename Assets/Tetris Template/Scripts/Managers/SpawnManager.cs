@@ -8,7 +8,7 @@ public class SpawnManager : MonoBehaviour {
     public void Spawn()
 	{
 		// Random Shape
-   		 int i = Random.Range(0, shapeTypes.Length);
+		int i = Random.Range(0, shapeTypes.Length);
 
 		// Spawn Group at current Position
 		GameObject temp =Instantiate(shapeTypes[i]) ;

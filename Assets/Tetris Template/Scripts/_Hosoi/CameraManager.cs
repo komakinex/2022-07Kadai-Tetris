@@ -30,7 +30,7 @@ public class CameraManager : MonoBehaviour
 	public void ZoomOut()
 	{
 		if (main.orthographicSize != _mainMenuSize)
-			main.DOOrthoSize(_mainMenuSize, 1f).SetEase(Ease.OutCubic); ;
+			main.DOOrthoSize(_mainMenuSize, 1f).SetEase(Ease.OutCubic);
 	}
 
 	IEnumerator StartGamePlay()

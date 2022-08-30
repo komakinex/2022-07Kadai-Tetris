@@ -17,7 +17,7 @@ public class PlayerInputManager : MonoBehaviour
 	void Start()
 	{
 		// 仮のキー入力ON~~~~~~~
-		EnableKeyInput(true);
+		// EnableKeyInput(true);
 
 		// キー入力
 		this.UpdateAsObservable()
