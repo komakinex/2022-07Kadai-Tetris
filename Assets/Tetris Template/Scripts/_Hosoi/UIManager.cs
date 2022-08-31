@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour {
 
     IEnumerator ActivateInGameUI()
     {
-        mainMenu.MainMenuEndAnimation();       
+        mainMenu.MainMenuEndAnimation();
         yield return new WaitForSeconds(0.3f);
         mainMenu.gameObject.SetActive(false);
         inGameUI.gameObject.SetActive(true);

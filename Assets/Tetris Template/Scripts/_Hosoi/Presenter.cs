@@ -11,8 +11,8 @@ public class Presenter : MonoBehaviour
 	[SerializeField] private BlockManager _blockManager;
 	[SerializeField] private ButtonManager _buttonManager;
 	[SerializeField] private CameraManager _cameraManager;
-	[SerializeField] private GridManager _gridManager;
-	// [SerializeField] private UIManager _uiManager;
+	// [SerializeField] private GridManager _gridManager;
+	[SerializeField] private UIManager _uiManager;
 	[SerializeField] private ViewManager _viewManager;
 
 	private float _gamePlayDuration;
@@ -35,8 +35,19 @@ public class Presenter : MonoBehaviour
 
 	void Start()
 	{
-		GameStart();
 		// いろんなイベントが飛んできた時の対応を書いておく
+
+		// ブロック系
+		_blockManager.CanInputKey.Subscribe(canInput =>
+		{
+			_inputManager.EnableKeyInput(canInput);
+		}).AddTo(this);
+		_blockManager.OnGetScore.Subscribe(score =>
+		{
+			_scoreManager.OnScore(score);
+		}).AddTo(this);
+
+
 		// ステート変更
 		// _stateManager.OnStateChangeObservable.Subscribe(state =>
 		// {
@@ -82,30 +93,7 @@ public class Presenter : MonoBehaviour
 		_inputManager.OnKeyInputObservable.Subscribe(key =>
 		{
 			Debug.Log(key);
-			switch (key)
-			{
-				case "up":
-					_blockManager.movementController.RotateClockWise(false);
-					break;
-				case "d":
-					_blockManager.movementController.RotateClockWise(true);
-					break;
-				case "left":
-					_blockManager.movementController.MoveHorizontal(Vector2.left);
-					break;
-				case "right":
-					_blockManager.movementController.MoveHorizontal(Vector2.right);
-					break;
-				case "down":
-					if (_blockManager.currentShape != null)
-					{
-						_inputManager.EnableKeyInput(false);
-						_blockManager.movementController.InstantFall();
-					}
-					break;
-				default:
-					break;
-			}
+			_blockManager.BlockMove(key);
 		}).AddTo(this);
 
 		// UI系
@@ -142,19 +130,25 @@ public class Presenter : MonoBehaviour
 		// }).AddTo(this);
 
 		// スコアの変更
-		_scoreManager.OnHighScoreObservable.Subscribe(highscore => 
+		_scoreManager.OnCurrentScoreObservable.Subscribe(currentScore => 
 		{
-			Debug.Log(highscore);
-			// _uiManager.inGameUI.UpdateScoreUI();
+			Debug.Log("current score: " + currentScore);
+			_uiManager.inGameUI.UpdateCurrentScoreUI(currentScore);
 		}).AddTo(this);
+		_scoreManager.OnHighScoreObservable.Subscribe(highScore => 
+		{
+			Debug.Log("high score: " + highScore);
+			_uiManager.inGameUI.UpdateHighScoreUI(highScore);
+		}).AddTo(this);
+
+		GameStart();
 	}
 
 	// テスト用ゲームスタート
 	private void GameStart()
 	{
 		// ブロックの生成
-		_inputManager.EnableKeyInput(true);
-		_blockManager.Spawn();
+		_blockManager.BlockSpawn();
 	}
 }
 }

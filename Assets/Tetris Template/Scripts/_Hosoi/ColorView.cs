@@ -9,7 +9,7 @@ public enum ColorTheme
 	GRAM
 }
 
-public class ColorManager : MonoBehaviour {
+public class ColorView : MonoBehaviour {
 
 	public ColorTheme activeTheme;
 

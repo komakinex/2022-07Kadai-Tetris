@@ -4,56 +4,266 @@ using UnityEngine;
 using System.Linq;
 using UniRx;
 using UniRx.Triggers;
+using System;
 
 namespace hosoi
 {
-public enum ShapeType
-{
-    I,
-    T,
-    O,
-    L,
-    J,
-    S,
-    Z
-}
 public class BlockManager : MonoBehaviour
 {
-	[HideInInspector] public TetrisShape currentShape;
-	[HideInInspector] public Transform blockHolder;
-	// [HideInInspector] public PlayerStats stats;
-	public GameObject[] shapeTypes;
+	[SerializeField] private ColorView _colorView;
+	[SerializeField] private GridManager _gridManager;
 
-	[HideInInspector] public ShapeType type;
-	[HideInInspector] public ShapeMovementController movementController;
+	// for Blocks
+	[SerializeField] private GameObject[] _shapeTypes;
+	private GameObject _tempBlock;
+	private Transform _rotationPivot; // ブロックの回転の中心
+	[SerializeField] private Transform _blockHolder;
+	// 落下速度
+	[SerializeField] private float _transitionInterval = 0.8f;
+	[SerializeField] private float _fastTransitionInterval = 0.05f;
+	private float _interval = 0.8f;
+	private float _lastFall;
 
-	[SerializeField] ColorManager _colorManager;
-
-	void Awake()
+	// Presenterへの通知
+	private Subject<bool> _canInputKey = new Subject<bool>();
+	private Subject<int> _getScore = new Subject<int>();
+	public IObservable<bool> CanInputKey
 	{
-		movementController = GetComponent<ShapeMovementController>();
-		AssignRandomColor();
+		get { return _canInputKey; }
+	}
+	public IObservable<int> OnGetScore
+	{
+		get { return _getScore; }
 	}
 
-	public void Spawn()
-	{
-		// Random Shape
-		int i = Random.Range(0, shapeTypes.Length);
 
-		// Spawn Group at current Position
-		GameObject temp =Instantiate(shapeTypes[i]);
-		currentShape = temp.GetComponent<TetrisShape>();
-		temp.transform.parent = blockHolder;
+	void Start()
+	{
+		// 通知の登録
+		// 得点と音楽
+
 
 		// 後で組み込む
-		// Managers.Input.isActive = true;
+		// Default position not valid? Then it's game over
+		// if (!_gridManager.IsValidGridPosition(this.transform))
+		// {
+		// 	Managers.Game.SetState(typeof(GameOverState));
+		// 	Destroy(_tempBlock);
+		// }
 	}
 
+	void Update()
+	{
+		if(_tempBlock != null)
+			FreeFall();
+	}
+
+	public void BlockSpawn()
+	{
+		// 落下速度の初期化
+		_interval = _transitionInterval;
+		// ブロックの形
+		int x = UnityEngine.Random.Range(0, _shapeTypes.Length);
+
+		_tempBlock =Instantiate(_shapeTypes[x]);
+		_rotationPivot = _tempBlock.transform.Find("Pivot").transform;
+		_tempBlock.transform.parent = _blockHolder;
+		AssignRandomColor();
+
+		_canInputKey.OnNext(true);
+	}
+	// ブロックの色指定
 	void AssignRandomColor()
 	{
-		Color temp = _colorManager.TurnRandomColorFromTheme();
-		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().ToList())
-			renderer.color = temp;
+		Color col = _colorView.TurnRandomColorFromTheme();
+		foreach (SpriteRenderer renderer in _tempBlock.GetComponentsInChildren<SpriteRenderer>().ToList())
+			renderer.color = col;
 	}
+
+	public void BlockMove(string key)
+	{
+		switch (key)
+		{
+			case "up":
+				RotateClockWise(false);
+				break;
+			case "d":
+				RotateClockWise(true);
+				break;
+			case "left":
+				MoveHorizontal(Vector2.left);
+				break;
+			case "right":
+				MoveHorizontal(Vector2.right);
+				break;
+			case "down":
+				if (_tempBlock != null)
+				{
+					_canInputKey.OnNext(false);
+					InstantFall();
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	// 横移動
+	public void MoveHorizontal(Vector2 direction)
+	{
+		float deltaMovement = (direction.Equals(Vector2.right)) ? 1.0f : -1.0f;
+		_tempBlock.transform.position += new Vector3(deltaMovement, 0, 0);
+
+		// グリッドをはみ出るような入力を打ち消す
+		if (_gridManager.IsValidGridPosition(_tempBlock.transform))
+		{
+			_gridManager.UpdateGrid(_tempBlock.transform);
+		}
+		else
+		{
+			_tempBlock.transform.position += new Vector3(-deltaMovement, 0, 0);
+		}
+	}
+	// 回転
+	public void RotateClockWise(bool isCw)
+	{
+		float rotationDegree = (isCw) ? 90.0f : -90.0f;
+		_tempBlock.transform.RotateAround(_rotationPivot.position, Vector3.forward, rotationDegree);
+
+		if (_gridManager.IsValidGridPosition(_tempBlock.transform))
+		{
+			_gridManager.UpdateGrid(_tempBlock.transform);
+		}
+		else
+		{
+			_tempBlock.transform.RotateAround(_rotationPivot.position, Vector3.forward, -rotationDegree);
+		}
+	}
+	// デフォルトの落下
+	public void FreeFall()
+	{
+		if (Time.time - _lastFall >= _interval)
+		{
+			_tempBlock.transform.position += Vector3.down;
+
+			// Managers.Audio.PlayDropSound();
+
+			if (_gridManager.IsValidGridPosition(_tempBlock.transform))
+			{
+				_gridManager.UpdateGrid(_tempBlock.transform);
+			}
+			else
+			{
+				_tempBlock.transform.position += new Vector3(0, 1, 0);
+
+				_canInputKey.OnNext(false);
+				_tempBlock = null;
+				PlaceShape();
+			}
+			_lastFall = Time.time;
+		}
+	}
+	// 自動で下までいく
+	public void InstantFall()
+	{
+		_interval = _fastTransitionInterval;
+	}
+
+
+	public void PlaceShape()
+	{
+		int y = 0;
+		StartCoroutine(DeleteRows(y));
+	}
+
+	IEnumerator DeleteRows(int k)
+	{
+		for (int y = k; y < Column.rowNum; ++y)
+		{
+			if (IsRowFull(y))
+			{
+				DeleteRow(y);
+				DecreaseRowsAbove(y + 1);
+				--y;
+				// Managers.Audio.PlayLineClearSound();
+				yield return new WaitForSeconds(0.8f);
+			}
+		}
+
+		foreach (Transform t in _blockHolder)
+			if (t.childCount <= 1)
+			{
+				Destroy(t.gameObject);
+			}
+
+		BlockSpawn();
+
+		yield break;
+	}
+
+	public bool IsRowFull(int y)
+	{
+		for (int x = 0; x < GridManager.columnNum; ++x)
+			if (_gridManager.gridColumn[x].row[y] == null)
+				return false;
+		return true;
+	}
+
+	public void DeleteRow(int y)
+	{
+		_getScore.OnNext(100);
+		Debug.Log("delete row");
+
+		for (int x = 0; x < GridManager.columnNum; ++x)
+		{
+			Destroy(_gridManager.gridColumn[x].row[y].gameObject);
+			_gridManager.gridColumn[x].row[y] = null;
+		}
+	}
+
+	public void DecreaseRowsAbove(int y)
+	{
+		for (int i = y; i < Column.rowNum; ++i)
+			DecreaseRow(i);
+	}
+
+	public void DecreaseRow(int y)
+	{
+		for (int x = 0; x < GridManager.columnNum; ++x)
+		{
+			if (_gridManager.gridColumn[x].row[y] != null)
+			{
+				// Move one towards bottom
+				_gridManager.gridColumn[x].row[y - 1] = _gridManager.gridColumn[x].row[y];
+				_gridManager.gridColumn[x].row[y] = null;
+
+				// Update Block position
+				_gridManager.gridColumn[x].row[y - 1].position += new Vector3(0, -1, 0);
+			}
+		}
+	}
+
+	// ブロック全削除
+	public void ClearBoard()
+	{
+		for (int y = 0; y < Column.rowNum; y++)
+		{
+			for (int x = 0; x < GridManager.columnNum; x++)
+			{
+				if (_gridManager.gridColumn[x].row[y] != null)
+				{
+					Destroy(_gridManager.gridColumn[x].row[y].gameObject);
+					_gridManager.gridColumn[x].row[y] = null;
+				}
+			}
+		}
+
+		foreach (Transform t in _blockHolder)
+			Destroy(t.gameObject);
+	}
+
+
+
+
 }
 }

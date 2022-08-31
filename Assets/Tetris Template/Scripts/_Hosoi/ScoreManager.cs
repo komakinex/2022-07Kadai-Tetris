@@ -21,6 +21,8 @@ public class ScoreManager : MonoBehaviour
 
 	Subject<int> OnHighScoreChange = new Subject<int>();
 	public IObservable<int> OnHighScoreObservable { get { return OnHighScoreChange; } }
+	Subject<int> OnCurrentScoreChange = new Subject<int>();
+	public IObservable<int> OnCurrentScoreObservable { get { return OnCurrentScoreChange; } }
 
 	void Awake()
 	{
@@ -39,10 +41,16 @@ public class ScoreManager : MonoBehaviour
 	void Start()
 	{
 		// スコアの変更を登録
-		this.ObserveEveryValueChanged(_ => _highScore)
-			.Subscribe(highscore =>
+		this.ObserveEveryValueChanged(_ => _currentScore)
+			.Subscribe(currentScore =>
 			{
-				OnHighScoreChange.OnNext(highscore);
+				OnCurrentScoreChange.OnNext(currentScore);
+			})
+			.AddTo(this);
+		this.ObserveEveryValueChanged(_ => _highScore)
+			.Subscribe(highScore =>
+			{
+				OnHighScoreChange.OnNext(highScore);
 			})
 			.AddTo(this);
 	}
@@ -54,10 +62,10 @@ public class ScoreManager : MonoBehaviour
 	}
 
 	public void OnScore(int scoreIncreaseAmount)
-	{	
+	{
+		Debug.Log("get score");
 		_currentScore += scoreIncreaseAmount;
 		CheckHighScore();
-		Managers.UI.inGameUI.UpdateScoreUI();
 		_totalScore += scoreIncreaseAmount;
 	}
 

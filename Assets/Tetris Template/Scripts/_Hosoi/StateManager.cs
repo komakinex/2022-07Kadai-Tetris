@@ -28,14 +28,14 @@ public class StateManager : MonoBehaviour
 
 	void Start()
 	{
-		this.UpdateAsObservable()
-			.Where(_ => Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.UpArrow))
-			.Subscribe(_ =>
-			{
-				// Aか↑を押したよ通知
-				// Debug.Log("push");
-				OnStateChange.OnNext("up");
-			});
+		// this.UpdateAsObservable()
+		// 	.Where(_ => Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.UpArrow))
+		// 	.Subscribe(_ =>
+		// 	{
+		// 		// Aか↑を押したよ通知
+		// 		// Debug.Log("push");
+		// 		OnStateChange.OnNext("up");
+		// 	});
 	}
 
 	public void Update()

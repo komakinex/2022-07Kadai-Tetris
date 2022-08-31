@@ -61,6 +61,7 @@ public class PlayerInputManager : MonoBehaviour
 
 	public void EnableKeyInput(bool isActive)
 	{
+		Debug.Log(isActive);
 		_isActive = isActive;
 	}
 }
