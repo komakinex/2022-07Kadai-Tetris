@@ -16,8 +16,8 @@ using DG.Tweening;
 
 public class InGameUI : MonoBehaviour {
 
-	[SerializeField] private Text _score;
-    [SerializeField] private Text _highScore;
+	public Text score;
+    public Text highScore;
     public Text scoreLabel;
     public Text highScoreLabel;  
     
@@ -25,32 +25,24 @@ public class InGameUI : MonoBehaviour {
 
     public void UpdateScoreUI()
 	{
-        _score.text = Managers.Score.currentScore.ToString();
-        _highScore.text = Managers.Score.highScore.ToString();
+        score.text = Managers.Score.currentScore.ToString();
+        highScore.text = Managers.Score.highScore.ToString();
     }
-	public void UpdateCurrentScoreUI(int score)
-	{
-		_score.text = score.ToString();
-	}
-	public void UpdateHighScoreUI(int highScore)
-	{
-		_highScore.text = highScore.ToString();
-	}
 
     public void InGameUIStartAnimation()
     {
         scoreLabel.rectTransform.DOAnchorPosY(-334, 1, true);
         highScoreLabel.rectTransform.DOAnchorPosY(-334, 1, true);
-        _score.rectTransform.DOAnchorPosY(-375, 1, true);
-        _highScore.rectTransform.DOAnchorPosY(-375, 1, true);
+        score.rectTransform.DOAnchorPosY(-375, 1, true);
+        highScore.rectTransform.DOAnchorPosY(-375, 1, true);
     }
 
     public void InGameUIEndAnimation()
     {
         scoreLabel.rectTransform.DOAnchorPosY(-334+650, 0.3f, true);
         highScoreLabel.rectTransform.DOAnchorPosY(-334 + 650, 0.3f, true);
-        _score.rectTransform.DOAnchorPosY(-375 + 650, 0.3f, true);
-        _highScore.rectTransform.DOAnchorPosY(-375 + 650, 0.3f, true);
+        score.rectTransform.DOAnchorPosY(-375 + 650, 0.3f, true);
+        highScore.rectTransform.DOAnchorPosY(-375 + 650, 0.3f, true);
     }
 
 

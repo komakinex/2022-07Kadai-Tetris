@@ -11,7 +11,6 @@ public class Presenter : MonoBehaviour
 	[SerializeField] private BlockManager _blockManager;
 	[SerializeField] private ButtonManager _buttonManager;
 	[SerializeField] private CameraManager _cameraManager;
-	// [SerializeField] private GridManager _gridManager;
 	[SerializeField] private UIManager _uiManager;
 	[SerializeField] private ViewManager _viewManager;
 
@@ -19,12 +18,11 @@ public class Presenter : MonoBehaviour
 
 
 	// Model
-	// [SerializeField] private GameManager _gameManager;
+	[SerializeField] private GameManager _gameManager;
 	[SerializeField] private PlayerInputManager _inputManager;
 	[SerializeField] private ScoreManager _scoreManager;
-	// [SerializeField] private StateManager _stateManager;
-	// // other
-	// [SerializeField] private AudioManager _audioManager;
+	// other
+	[SerializeField] private AudioManager _audioManager;
 
 
 	void Awake ()
@@ -38,56 +36,63 @@ public class Presenter : MonoBehaviour
 		// いろんなイベントが飛んできた時の対応を書いておく
 
 		// ブロック系
-		_blockManager.CanInputKey.Subscribe(canInput =>
+		_blockManager.OnAcceptKeyinput.Subscribe(canInput =>
 		{
 			_inputManager.EnableKeyInput(canInput);
 		}).AddTo(this);
-		_blockManager.OnGetScore.Subscribe(score =>
+		_blockManager.OnGetScore.Subscribe(_ =>
 		{
-			_scoreManager.OnScore(score);
+			_scoreManager.OnScore();
+		}).AddTo(this);
+		_blockManager.OnGameOver.Subscribe(_ =>
+		{
+			_gameManager.SetState(State.Gameover);
 		}).AddTo(this);
 
 
 		// ステート変更
-		// _stateManager.OnStateChangeObservable.Subscribe(state =>
-		// {
-		// 	Debug.Log(state);
+		_gameManager.OnStateChangeObservable.Subscribe(state =>
+		{
+			Debug.Log(state);
+			_gameManager.StateAction(state);
+			_scoreManager.StateAction(state);
+
+			_audioManager.StateAction(state);
+			_blockManager.StateAction(state);
+			_cameraManager.StateAction(state);
+			_uiManager.StateAction(state);
+
+
 		// 	switch (state)
 		// 	{
 		// 		case "menu":
 		// 			// もし1つ前がplayだったら
 		// 			// if _gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
 
-		// 			_uiManager.ActivateUI (Menus.MAIN);
-		// 			_cameraManager.ZoomOut();
-		// 			_uiManager.mainMenu.MainMenuStartAnimation();
 		// 			_uiManager.MainMenuArrange();
 		// 			break;
 		// 		case "play":
-		// 			_uiManager.panel.SetActive(false);
-		// 			_uiManager.ActivateUI(Menus.INGAME);
-
 		// 			_gamePlayDuration = Time.time;
-		// 			_cameraManager.ZoomIn();
 
-		// 			// 随時更新
-		// 			// if(_gameManager.currentShape!=null)
-		// 			// 	_gameManager.currentShape.movementController.ShapeUpdate();
-		// 			break;
 		// 		case "gameover":
 		// 			// もし1つ前がplayだったら
 		// 			// _gameManager.stats.timeSpent += Time.time - _gamePlayDuration;
 
-		// 			_gameManager.EnablePlay(false);
-		// 			_scoreManager.CurrentIsHighScore();
-		// 			_gameManager.GameCount();
-		// 			_uiManager.popUps.ActivateGameOverPopUp();
 		// 			_audioManager.PlayLoseSound();
 		// 			break;
-		// 		default:
-		// 			break;
+
 		// 	}
-		// }).AddTo(this);
+		}).AddTo(this);
+
+		// カメラ
+		_cameraManager.OnZoomInFinObservable.Subscribe(_ =>
+		{
+			if(!_gameManager.isGameActive)
+			{
+				_blockManager.BlockSpawn();
+				_gameManager.EnablePlay(true);
+			}
+		}).AddTo(this);
 
 		// キー入力
 		_inputManager.OnKeyInputObservable.Subscribe(key =>
@@ -98,57 +103,28 @@ public class Presenter : MonoBehaviour
 
 		// UI系
 		// 押されたボタン：Viewからの通知
-		// _buttonManager.OnButtonClicked.Subscribe(btn => 
-		// {
-		// 	Debug.Log(btn);
-		// 	_audioManager.PlayUIClick();
-		// 	switch (btn)
-		// 	{
-		// 		case "play":
-		// 			_gameManager.SetState(typeof(GamePlayState));
-		// 			break;
-		// 		case "pause":
-		// 			_gameManager.SetState(typeof(MenuState));
-		// 			break;
-		// 		case "restart":
-		// 			_gridManager.ClearBoard();
-		// 			_gameManager.EnablePlay(false);
-		// 			_gameManager.SetState(typeof(GamePlayState));
-		// 			_uiManager.inGameUI.gameOverPopUp.SetActive(false);
-		// 			break;
-		// 		case "setting":
-		// 			_uiManager.popUps.ActivateSettingsPopUp();
-		// 			_uiManager.panel.SetActive(true);
-		// 			break;
-		// 		case "stats":
-		// 			_uiManager.popUps.ActivatePlayerStatsPopUp();
-		// 			_uiManager.panel.SetActive(true);
-		// 			break;
-		// 		default:
-		// 			break;
-		// 	}
-		// }).AddTo(this);
+		_buttonManager.OnButtonClicked.Subscribe(btn =>
+		{
+			Debug.Log(btn);
+			_audioManager.PlayUIClick();
+
+			_gameManager.ButtonAction(btn);
+			_uiManager.ButtonAction(btn);
+			_blockManager.ButtonAction(btn);
+		}).AddTo(this);
 
 		// スコアの変更
 		_scoreManager.OnCurrentScoreObservable.Subscribe(currentScore => 
 		{
 			Debug.Log("current score: " + currentScore);
-			_uiManager.inGameUI.UpdateCurrentScoreUI(currentScore);
+			_uiManager.UpdateCurrentScoreUI(currentScore);
 		}).AddTo(this);
 		_scoreManager.OnHighScoreObservable.Subscribe(highScore => 
 		{
 			Debug.Log("high score: " + highScore);
-			_uiManager.inGameUI.UpdateHighScoreUI(highScore);
+			_uiManager.UpdateHighScoreUI(highScore);
 		}).AddTo(this);
 
-		GameStart();
-	}
-
-	// テスト用ゲームスタート
-	private void GameStart()
-	{
-		// ブロックの生成
-		_blockManager.BlockSpawn();
 	}
 }
 }

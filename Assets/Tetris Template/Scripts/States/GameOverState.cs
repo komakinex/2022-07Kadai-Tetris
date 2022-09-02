@@ -6,6 +6,8 @@ public class GameOverState : _StatesBase {
 	#region implemented abstract members of _StatesBase
 	public override void OnActivate ()
 	{
+		// OnActiveになった通知をする
+
         Managers.Game.isGameActive = false;
         Managers.Game.stats.highScore = Managers.Score.currentScore;
         Managers.Game.stats.numberOfGames++;

@@ -23,39 +23,37 @@ public class BlockManager : MonoBehaviour
 	[SerializeField] private float _fastTransitionInterval = 0.05f;
 	private float _interval = 0.8f;
 	private float _lastFall;
+	private bool _canFall = false;
 
 	// Presenterへの通知
-	private Subject<bool> _canInputKey = new Subject<bool>();
-	private Subject<int> _getScore = new Subject<int>();
-	public IObservable<bool> CanInputKey
-	{
-		get { return _canInputKey; }
-	}
-	public IObservable<int> OnGetScore
-	{
-		get { return _getScore; }
-	}
-
-
-	void Start()
-	{
-		// 通知の登録
-		// 得点と音楽
-
-
-		// 後で組み込む
-		// Default position not valid? Then it's game over
-		// if (!_gridManager.IsValidGridPosition(this.transform))
-		// {
-		// 	Managers.Game.SetState(typeof(GameOverState));
-		// 	Destroy(_tempBlock);
-		// }
-	}
+	private Subject<bool> _acceptKeyinput = new Subject<bool>();
+	public IObservable<bool> OnAcceptKeyinput { get { return _acceptKeyinput; } }
+	private Subject<Unit> _getScore = new Subject<Unit>();
+	public IObservable<Unit> OnGetScore { get { return _getScore; } }
+	private Subject<Unit> _gameOver = new Subject<Unit>();
+	public IObservable<Unit> OnGameOver { get { return _gameOver; } }
 
 	void Update()
 	{
-		if(_tempBlock != null)
+		if(_tempBlock != null && _canFall)
 			FreeFall();
+	}
+	public void StateAction(State state)
+	{
+		switch (state)
+		{
+			case State.Menu:
+				_canFall = false;
+				break;
+			case State.Play:
+				_canFall = true;
+				break;
+			case State.Pause:
+				_canFall = false;
+				break;
+			default:
+				break;
+		}
 	}
 
 	public void BlockSpawn()
@@ -70,7 +68,16 @@ public class BlockManager : MonoBehaviour
 		_tempBlock.transform.parent = _blockHolder;
 		AssignRandomColor();
 
-		_canInputKey.OnNext(true);
+		// 生成した位置が正しくなければGameOver
+		if (!_gridManager.IsValidGridPosition(_tempBlock.transform))
+		{
+			_gameOver.OnNext(Unit.Default);
+			Destroy(_tempBlock);
+		}
+		else
+		{
+			_acceptKeyinput.OnNext(true);
+		}
 	}
 	// ブロックの色指定
 	void AssignRandomColor()
@@ -99,7 +106,7 @@ public class BlockManager : MonoBehaviour
 			case "down":
 				if (_tempBlock != null)
 				{
-					_canInputKey.OnNext(false);
+					_acceptKeyinput.OnNext(false);
 					InstantFall();
 				}
 				break;
@@ -156,7 +163,7 @@ public class BlockManager : MonoBehaviour
 			{
 				_tempBlock.transform.position += new Vector3(0, 1, 0);
 
-				_canInputKey.OnNext(false);
+				_acceptKeyinput.OnNext(false);
 				_tempBlock = null;
 				PlaceShape();
 			}
@@ -211,7 +218,7 @@ public class BlockManager : MonoBehaviour
 
 	public void DeleteRow(int y)
 	{
-		_getScore.OnNext(100);
+		_getScore.OnNext(Unit.Default);
 		Debug.Log("delete row");
 
 		for (int x = 0; x < GridManager.columnNum; ++x)
@@ -243,8 +250,16 @@ public class BlockManager : MonoBehaviour
 		}
 	}
 
+	public void ButtonAction(string btn)
+	{
+		if(btn == "restart")
+		{
+			ClearBoard();
+		}
+	}
+
 	// ブロック全削除
-	public void ClearBoard()
+	private void ClearBoard()
 	{
 		for (int y = 0; y < Column.rowNum; y++)
 		{

@@ -18,6 +18,7 @@ public class ScoreManager : MonoBehaviour
 	// }
 	private int _bestHighScore = 0;
 	private int _totalScore = 0;
+	[SerializeField] private int _score = 100;
 
 	Subject<int> OnHighScoreChange = new Subject<int>();
 	public IObservable<int> OnHighScoreObservable { get { return OnHighScoreChange; } }
@@ -29,15 +30,12 @@ public class ScoreManager : MonoBehaviour
 		if (_bestHighScore != 0)
 		{
 			_highScore = _bestHighScore;
-			// Managers.UI.inGameUI.UpdateScoreUI();
 		}
 		else
 		{
 			_highScore = 0;
-			// Managers.UI.inGameUI.UpdateScoreUI();
 		}
 	}
-
 	void Start()
 	{
 		// スコアの変更を登録
@@ -54,6 +52,24 @@ public class ScoreManager : MonoBehaviour
 			})
 			.AddTo(this);
 	}
+	public void StateAction(State state)
+	{
+		switch (state)
+		{
+			case State.Menu:
+
+				break;
+			case State.Play:
+				break;
+			case State.Pause:
+				break;
+			case State.Gameover:
+				CurrentIsHighScore();
+				break;
+			default:
+				break;
+		}
+	}
 
 
 	public void CurrentIsHighScore()
@@ -61,12 +77,12 @@ public class ScoreManager : MonoBehaviour
 		_highScore = _currentScore;
 	}
 
-	public void OnScore(int scoreIncreaseAmount)
+	public void OnScore()
 	{
 		Debug.Log("get score");
-		_currentScore += scoreIncreaseAmount;
+		_currentScore += _score;
 		CheckHighScore();
-		_totalScore += scoreIncreaseAmount;
+		// _totalScore += _score;
 	}
 
 	public void CheckHighScore()
@@ -81,7 +97,6 @@ public class ScoreManager : MonoBehaviour
 	{
 		_currentScore = 0;
 		_highScore = _bestHighScore;
-		Managers.UI.inGameUI.UpdateScoreUI();
 	}
 
 }
