@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 using System;
 
 namespace hosoi
@@ -18,6 +15,7 @@ public class GameManager : MonoBehaviour
 
 	private float _timeSpent = 0;
 	private int _numberOfGames = 0;
+	private float _gamePlayDuration;
 
 	private State _currentState;
 	public State State
@@ -28,33 +26,33 @@ public class GameManager : MonoBehaviour
 	Subject<State> OnStateChange = new Subject<State>();
 	public IObservable<State> OnStateChangeObservable { get { return OnStateChange; } }
 
-	void Awake()
-	{
-		EnablePlay(false);
-	}
-
 	// テトリススタート！！
 	void Start()
 	{
+		_isGameActive = false;
+
 		this.ObserveEveryValueChanged(_ => _currentState)
-			.Skip(1)
+			.Skip(1) // 再生したときの初回をスキップ
 			.Subscribe(currentState =>
 			{
 				Debug.Log("State Changed");
 				OnStateChange.OnNext(currentState);
-				// ステート分岐の関数
 			})
 			.AddTo(this);
 
 		SetState(State.Menu);
 	}
-	// void Update()
-	// {
-	// 	if (_currentState != null)
-	// 	{
-	// 		_currentState.OnUpdate();
-	// 	}
-	// }
+	// ステート変更
+	public void SetState(State nextState)
+	{
+		if (_currentState == State.Play)
+		{
+			_timeSpent += Time.time - _gamePlayDuration;
+		}
+		Debug.Log("time spent: " + _timeSpent);
+		_currentState = nextState;
+		Debug.Log("Now: " + _currentState);
+	}
 
 	public void StateAction(State state)
 	{
@@ -64,18 +62,19 @@ public class GameManager : MonoBehaviour
 
 				break;
 			case State.Play:
+				_gamePlayDuration = Time.time;
 				break;
 			case State.Pause:
 				break;
 			case State.Gameover:
-				EnablePlay(false);
-				GameCount();
+				_isGameActive = false;
+				_numberOfGames++; // ゲームの回数記録
+				Debug.Log("Number of Games: " + _numberOfGames);
 				break;
 			default:
 				break;
 		}
 	}
-
 	public void ButtonAction(string btn)
 	{
 		switch (btn)
@@ -87,40 +86,15 @@ public class GameManager : MonoBehaviour
 				SetState(State.Pause);
 				break;
 			case "restart":
-				EnablePlay(false);
+				_isGameActive = false;
 				SetState(State.Play);
+				break;
+			case "home":
+				SetState(State.Menu);
 				break;
 			default:
 				break;
 		}
-	}
-
-	//Changes the current game state
-	public void SetState(State nextState)
-	{
-		// if (_currentState != null)
-		// {
-		// 	_currentState.OnDeactivate();
-		// }
-		_currentState = nextState;
-		Debug.Log(_currentState);
-
-		// if (_currentState != null)
-		// {
-		// 	_currentState.OnActivate();
-		// 	Debug.Log("setstate");
-		// }
-	}
-
-	public void EnablePlay(bool isActive)
-	{
-		Debug.Log(isActive);
-		_isGameActive = isActive;
-	}
-
-	public void GameCount()
-	{
-		_numberOfGames++;
 	}
 }
 }

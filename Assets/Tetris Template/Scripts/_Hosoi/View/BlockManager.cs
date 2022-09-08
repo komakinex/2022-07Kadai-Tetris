@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UniRx;
-using UniRx.Triggers;
 using System;
 
 namespace hosoi
@@ -32,6 +30,8 @@ public class BlockManager : MonoBehaviour
 	public IObservable<Unit> OnGetScore { get { return _getScore; } }
 	private Subject<Unit> _gameOver = new Subject<Unit>();
 	public IObservable<Unit> OnGameOver { get { return _gameOver; } }
+	private Subject<String> _onAudio = new Subject<String>();
+	public IObservable<String> OnAudio { get { return _onAudio; } }
 
 	void Update()
 	{
@@ -153,7 +153,7 @@ public class BlockManager : MonoBehaviour
 		{
 			_tempBlock.transform.position += Vector3.down;
 
-			// Managers.Audio.PlayDropSound();
+			_onAudio.OnNext("drop");
 
 			if (_gridManager.IsValidGridPosition(_tempBlock.transform))
 			{
@@ -192,7 +192,7 @@ public class BlockManager : MonoBehaviour
 				DeleteRow(y);
 				DecreaseRowsAbove(y + 1);
 				--y;
-				// Managers.Audio.PlayLineClearSound();
+				_onAudio.OnNext("clear");
 				yield return new WaitForSeconds(0.8f);
 			}
 		}
@@ -252,7 +252,7 @@ public class BlockManager : MonoBehaviour
 
 	public void ButtonAction(string btn)
 	{
-		if(btn == "restart")
+		if(btn == "restart" || btn == "home")
 		{
 			ClearBoard();
 		}

@@ -16,9 +16,6 @@ public class PlayerInputManager : MonoBehaviour
 
 	void Start()
 	{
-		// 仮のキー入力ON~~~~~~~
-		// EnableKeyInput(true);
-
 		// キー入力
 		this.UpdateAsObservable()
 			.Where(_ => _isActive)
@@ -26,7 +23,6 @@ public class PlayerInputManager : MonoBehaviour
 			.Subscribe(_ =>
 			{
 				// Aか↑を押したよ通知
-				// Debug.Log("push");
 				OnKeyInput.OnNext("up");
 			});
 		this.UpdateAsObservable()
@@ -61,7 +57,7 @@ public class PlayerInputManager : MonoBehaviour
 
 	public void EnableKeyInput(bool isActive)
 	{
-		Debug.Log(isActive);
+		Debug.Log("Keyinput: " + isActive);
 		_isActive = isActive;
 	}
 }

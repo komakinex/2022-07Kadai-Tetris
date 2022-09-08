@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 using System;
 
 
@@ -12,12 +9,8 @@ public class ScoreManager : MonoBehaviour
 {
 	private int _currentScore = 0;
 	private int _highScore = 0;
-	// public int HighScore
-	// {
-	// 	get { return _highScore; }
-	// }
-	private int _bestHighScore = 0;
-	private int _totalScore = 0;
+
+	// private int _bestHighScore = 0;
 	[SerializeField] private int _score = 100;
 
 	Subject<int> OnHighScoreChange = new Subject<int>();
@@ -25,17 +18,17 @@ public class ScoreManager : MonoBehaviour
 	Subject<int> OnCurrentScoreChange = new Subject<int>();
 	public IObservable<int> OnCurrentScoreObservable { get { return OnCurrentScoreChange; } }
 
-	void Awake()
-	{
-		if (_bestHighScore != 0)
-		{
-			_highScore = _bestHighScore;
-		}
-		else
-		{
-			_highScore = 0;
-		}
-	}
+	// void Awake()
+	// {
+	// 	if (_bestHighScore != 0)
+	// 	{
+	// 		_highScore = _bestHighScore;
+	// 	}
+	// 	else
+	// 	{
+	// 		_highScore = 0;
+	// 	}
+	// }
 	void Start()
 	{
 		// スコアの変更を登録
@@ -71,7 +64,6 @@ public class ScoreManager : MonoBehaviour
 		}
 	}
 
-
 	public void CurrentIsHighScore()
 	{
 		_highScore = _currentScore;
@@ -82,7 +74,6 @@ public class ScoreManager : MonoBehaviour
 		Debug.Log("get score");
 		_currentScore += _score;
 		CheckHighScore();
-		// _totalScore += _score;
 	}
 
 	public void CheckHighScore()
@@ -96,7 +87,6 @@ public class ScoreManager : MonoBehaviour
 	public void ResetScore()
 	{
 		_currentScore = 0;
-		_highScore = _bestHighScore;
 	}
 
 }

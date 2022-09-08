@@ -1,18 +1,16 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using DG.Tweening;
 
 namespace hosoi
 {
-public class InGameUI : MonoBehaviour {
-
+public class InGameUI : MonoBehaviour
+{
 	[SerializeField] private Text _score;
 	[SerializeField] private Text _highScore;
 	[SerializeField] private Text _scoreLabel;
 	[SerializeField] private Text _highScoreLabel;
 
-	public GameObject gameOverPopUp;
 
 	// public void UpdateScoreUI(int score)
 	// {

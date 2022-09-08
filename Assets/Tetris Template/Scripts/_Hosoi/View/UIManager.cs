@@ -1,28 +1,28 @@
-
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
+using UniRx;
 
 namespace hosoi
 {
-public enum Menus
-{
-	MAIN,
-	INGAME,
-	GAMEOVER
-}
-
 public class UIManager : MonoBehaviour {
 
 	[SerializeField] private MainMenu _mainMenu;
 	[SerializeField] private InGameUI _inGameUI;
 	[SerializeField] private PopUp _popUps;
 	[SerializeField] private GameObject _activePopUp;
-	[SerializeField] private GameObject _panel;
+	[SerializeField] private GameObject _bgPanel;
 
-
+	void Start()
+	{
+		_popUps.OnActivePopUpObservable.Subscribe(activePopUp => 
+		{
+			_activePopUp = activePopUp;
+			Debug.Log("active:" + activePopUp);
+		}).AddTo(this);
+	}
 	void Update()
 	{
+		// Popupの外側をクリックすると非表示にする機能
 		if (_activePopUp != null)
 			HideIfClickedOutside(_activePopUp);
 	}
@@ -31,21 +31,22 @@ public class UIManager : MonoBehaviour {
 		switch (state)
 		{
 			case State.Menu:
-				ActivateUI (Menus.MAIN);
+				StartCoroutine(ActivateMainMenu());
 				_mainMenu.MainMenuStartAnimation();
 				MainMenuArrange();
 				break;
 			case State.Play:
-				_panel.SetActive(false);
-				ActivateUI(Menus.INGAME);
+				_bgPanel.SetActive(false);
+				StartCoroutine(ActivateInGameUI());
 				break;
 			case State.Pause:
-				ActivateUI (Menus.MAIN);
+				StartCoroutine(ActivateMainMenu());
 				_mainMenu.MainMenuStartAnimation();
 				MainMenuArrangeInPause();
 				break;
 			case State.Gameover:
 				_popUps.ActivateGameOverPopUp();
+				_bgPanel.SetActive(true);
 				break;
 			default:
 				break;
@@ -56,30 +57,25 @@ public class UIManager : MonoBehaviour {
 		switch (btn)
 		{
 			case "restart":
-				_inGameUI.gameOverPopUp.SetActive(false);
+				_popUps.InactivateGameOverPopUp();
 				break;
 			case "setting":
 				_popUps.ActivateSettingsPopUp();
-				_panel.SetActive(true);
+				_bgPanel.SetActive(true);
 				break;
 			case "stats":
 				_popUps.ActivatePlayerStatsPopUp();
-				_panel.SetActive(true);
+				_bgPanel.SetActive(true);
+				break;
+			case "home":
+				_popUps.InactivateGameOverPopUp();
+				_bgPanel.SetActive(false);
+				break;
+			case "sound":
+				_popUps.SetSoundCross();
 				break;
 			default:
 				break;
-		}
-	}
-
-	public void ActivateUI(Menus menutype)
-	{
-		if (menutype.Equals (Menus.MAIN))
-		{
-			StartCoroutine(ActivateMainMenu());
-		}
-		else if(menutype.Equals(Menus.INGAME))
-		{
-			StartCoroutine(ActivateInGameUI());
 		}
 	}
 
@@ -101,8 +97,7 @@ public class UIManager : MonoBehaviour {
 		_inGameUI.InGameUIStartAnimation();
 	}
 
-
-
+	// MenuとPauseでMain Menuの配置変える
 	public void MainMenuArrangeInPause()
 	{
 		_mainMenu.layout.spacing = 20;
@@ -111,13 +106,14 @@ public class UIManager : MonoBehaviour {
 	}
 	public void MainMenuArrange()
 	{
-			_mainMenu.layout.spacing = 50;
-			_mainMenu.layout.padding.left = _mainMenu.layout.padding.right = 250;
-			_mainMenu.restartButton.SetActive(false);
+		_mainMenu.layout.spacing = 50;
+		_mainMenu.layout.padding.left = _mainMenu.layout.padding.right = 250;
+		_mainMenu.restartButton.SetActive(false);
 	}
 
 	private void HideIfClickedOutside(GameObject outsidePanel)
 	{
+		// 左クリック + Popup表示中 + クリックした位置がPopup矩形内ではない場合
 		if (Input.GetMouseButton(0) && outsidePanel.activeSelf &&
 			!RectTransformUtility.RectangleContainsScreenPoint(
 				outsidePanel.GetComponent<RectTransform>(),
@@ -126,8 +122,8 @@ public class UIManager : MonoBehaviour {
 		{
 			outsidePanel.SetActive(false);
 			outsidePanel.transform.parent.gameObject.SetActive(false);
-			_panel.SetActive(false);
-			_activePopUp = null;
+			_bgPanel.SetActive(false);
+			_popUps.NullActivePopUp();
 		}
 	}
 
@@ -138,7 +134,7 @@ public class UIManager : MonoBehaviour {
 	public void UpdateHighScoreUI(int score)
 	{
 		_inGameUI.UpdateHighScoreUI(score);
+		_popUps.SetScore(score);
 	}
-
 }
 }

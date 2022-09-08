@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace hosoi
@@ -69,11 +67,6 @@ public class GridManager : MonoBehaviour
 			}
 		}
 	}
-
-
-
-
-
 
 }
 }

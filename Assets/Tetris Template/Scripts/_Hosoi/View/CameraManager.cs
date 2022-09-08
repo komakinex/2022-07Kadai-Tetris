@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UniRx;
-using UniRx.Triggers;
 using System;
 
 namespace hosoi
@@ -16,8 +13,8 @@ public class CameraManager : MonoBehaviour
 
 	Subject<Unit> OnZoomInFin = new Subject<Unit>();
 	public IObservable<Unit> OnZoomInFinObservable { get { return OnZoomInFin; } }
-	Subject<Unit> OnZoomOutFin = new Subject<Unit>();
-	public IObservable<Unit> OnZoomOutFinObservable { get { return OnZoomOutFin; } }
+	Subject<Unit> OnNotZoomIn = new Subject<Unit>();
+	public IObservable<Unit> OnNotZoomInObservable { get { return OnNotZoomIn; } }
 
 	public void StateAction(State state)
 	{
@@ -46,6 +43,10 @@ public class CameraManager : MonoBehaviour
 				OnZoomInFin.OnNext(Unit.Default);
 			});
 		}
+		else
+		{
+			OnNotZoomIn.OnNext(Unit.Default);
+		}
 		
 	}
 
@@ -53,10 +54,7 @@ public class CameraManager : MonoBehaviour
 	{
 		if (_mainCam.orthographicSize != _mainMenuSize)
 		{
-			_mainCam.DOOrthoSize(_mainMenuSize, 1f).SetEase(Ease.OutCubic).OnComplete(() =>
-			{
-				OnZoomOutFin.OnNext(Unit.Default);
-			});
+			_mainCam.DOOrthoSize(_mainMenuSize, 1f).SetEase(Ease.OutCubic);
 		}
 	}
 }

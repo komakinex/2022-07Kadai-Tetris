@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UnityEngine.UI;
@@ -9,7 +7,9 @@ namespace hosoi
 public class ButtonManager : MonoBehaviour
 {
 	public Subject<string> OnButtonClicked = new Subject<string>();
-	[SerializeField] private Button _playBtn, _pauseBtn, _restartBtn, _settingBtn, _statsBtn;
+	[SerializeField] private Button _playBtn, _pauseBtn, _restartBtn, _settingBtn, _statsBtn; 
+	[SerializeField] private Button _gameoverRestartBtn, _gameoverHomeBtn; // gameover menu
+	[SerializeField] private Button _soundBtn; // setting
 
 	void Start()
 	{
@@ -34,6 +34,15 @@ public class ButtonManager : MonoBehaviour
 			.AddTo(this);
 		_statsBtn.OnClickAsObservable()
 			.Subscribe(_ => {OnButtonClicked.OnNext("stats");})
+			.AddTo(this);
+		_gameoverRestartBtn.OnClickAsObservable()
+			.Subscribe(_ => {OnButtonClicked.OnNext("restart");})
+			.AddTo(this);
+		_gameoverHomeBtn.OnClickAsObservable()
+			.Subscribe(_ => {OnButtonClicked.OnNext("home");})
+			.AddTo(this);
+		_soundBtn.OnClickAsObservable()
+			.Subscribe(_ => {OnButtonClicked.OnNext("sound");})
 			.AddTo(this);
 	}
 }

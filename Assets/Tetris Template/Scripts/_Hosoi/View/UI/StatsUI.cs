@@ -4,31 +4,33 @@ using UnityEngine.UI;
 
 namespace hosoi
 {
-public class StatsUI : MonoBehaviour {
+public class StatsUI : MonoBehaviour
+{
+	// 使ってないです！
 
-    public Text highScore;
-    public Text totalScore;
-    public Text timeSpent;
-    public Text numberOfGames;
+    // public Text highScore;
+    // public Text totalScore;
+    // public Text timeSpent;
+    // public Text numberOfGames;
 
-    public void ClearStats()
-    {
-        Managers.Game.stats.ClearStats();
-        RefreshText();
-    }
+    // public void ClearStats()
+    // {
+    //     Managers.Game.stats.ClearStats();
+    //     RefreshText();
+    // }
 
-    void OnEnable()
-    {
-        RefreshText();
-    }
+    // void OnEnable()
+    // {
+    //     RefreshText();
+    // }
 
-    void RefreshText()
-    {
-        highScore.text = Managers.Game.stats.highScore.ToString();
-        totalScore.text = Managers.Game.stats.totalScore.ToString();
-        timeSpent.text = TimeUtil.SecondsToHMS(Managers.Game.stats.timeSpent);
-        numberOfGames.text = Managers.Game.stats.numberOfGames.ToString();
-    }
+    // void RefreshText()
+    // {
+    //     highScore.text = Managers.Game.stats.highScore.ToString();
+    //     totalScore.text = Managers.Game.stats.totalScore.ToString();
+    //     timeSpent.text = TimeUtil.SecondsToHMS(Managers.Game.stats.timeSpent);
+    //     numberOfGames.text = Managers.Game.stats.numberOfGames.ToString();
+    // }
 
 }
 }
