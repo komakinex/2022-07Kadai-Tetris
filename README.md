@@ -1,8 +1,10 @@
 # 2022-07Kadai-Tetris
  Unity 2021.3.4f1  
- [サンプルファイル](https://assetstore.unity.com/packages/templates/tetris-template-mobile-ready-72717)
+ [元のサンプルプロジェクト](https://assetstore.unity.com/packages/templates/tetris-template-mobile-ready-72717)
 
 ## Scripts
+Assets/Tetris Template/Scripts/_Hosoi/  
+  
 Presenter.cs  
 ・ModelとViewの各マネージャーのやり取りの仲介  
 ***
