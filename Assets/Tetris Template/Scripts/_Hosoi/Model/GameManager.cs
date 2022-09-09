@@ -18,11 +18,6 @@ public class GameManager : MonoBehaviour
 	private float _gamePlayDuration;
 
 	private State _currentState;
-	public State State
-	{
-		get { return _currentState; }
-	}
-
 	Subject<State> OnStateChange = new Subject<State>();
 	public IObservable<State> OnStateChangeObservable { get { return OnStateChange; } }
 
